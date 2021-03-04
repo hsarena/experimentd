@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/experimentd
+experimentd.so
+experimentd.dylib
+experimentd.dll
+experimentd.a
+experimentd.lib
+experimentd-test-*
+*.exe
+*.o
+*.obj
+*.lst
