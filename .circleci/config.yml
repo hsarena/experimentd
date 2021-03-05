@@ -18,7 +18,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: dub -b build
+      - run: dub -v build
 
       - save_cache:
           key: v1-dependencies-{{ checksum "dub.selections.json" }}
