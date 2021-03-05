@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-import vibe.vibe;
-import std.conv: to;
-import std.process: environment;
-
-void main()
-{
-
-	logInfo("Environments:");
-=======
 module source.app;
 import source.api;
 import vibe.vibe;
@@ -18,19 +8,10 @@ import std.typecons : Nullable;
 void main()
 {
 	logInfo("Environment dump");
->>>>>>> 9289503 (Implement simple api)
     auto env = environment.toAA;
     foreach(k, v; env)
         logInfo("%s = %s", k, v);
 
-<<<<<<< HEAD
-    auto host = environment.get("LISTEN_IP", "0.0.0.0");
-    auto port = to!ushort(environment.get("LISTEN_PORT", "8080"));
-
-    auto router = new URLRouter;
-
-    //router.registerRestInterface(new HelloImpl());
-=======
 	auto host = environment.get("HELLO_HOST", "0.0.0.0");
     auto port = to!ushort(environment.get("HELLO_PORT", "8080"));
 
@@ -47,17 +28,10 @@ void main()
 	router.get("/", &hello);
 	router.get("/healthz", &healthz);
 	router.get("*", serveStaticFiles("public"));
->>>>>>> 9289503 (Implement simple api)
 
 	auto settings = new HTTPServerSettings;
 	settings.port = port;
 	settings.bindAddresses = [host];
-<<<<<<< HEAD
-
-	listenHTTP(settings, &hello);
-
-	logInfo("Please open http://%s:%d in your browser.", host, port);
-=======
 	settings.errorPageHandler = toDelegate(&error);
 	//listenHTTP(settings, router);
 	immutable serverAddr = listenHTTP(settings, router).bindAddresses[0];
@@ -76,26 +50,17 @@ void main()
 	// 		exitEventLoop(true);
 	// 	}
 	// });
->>>>>>> 9289503 (Implement simple api)
 	runApplication();
 }
 
 void hello(HTTPServerRequest req, HTTPServerResponse res)
 {
-<<<<<<< HEAD
-=======
 	logInfo("hello called");
->>>>>>> 9289503 (Implement simple api)
 	res.writeBody("Hello, World!");
 }
 
 void healthz(HTTPServerRequest req, HTTPServerResponse res)
 {
-<<<<<<< HEAD
-	res.writeBody("OK");
-}
-
-=======
 	logInfo("health called");
 	res.writeBody("OK");
 }
@@ -105,4 +70,3 @@ void error(HTTPServerRequest req, HTTPServerResponse res, HTTPServerErrorInfo er
 	res.render!("error.dt", req, error);
 }
 
->>>>>>> 9289503 (Implement simple api)
