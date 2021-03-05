@@ -33,33 +33,41 @@ jobs:
       #     name: Code Coverage
       #     command: bash <(curl -s https://codecov.io/bash)
 
-      - setup_remote_docker
-
-      - run:
-          name: Build Docker Image
-          command: |
-            export TAG=0.1.${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=hsarena/experimentd:$TAG
-            docker build -t $IMAGE_NAME  .
-            docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-            docker push $IMAGE_NAME
-
-      - restore_cache:
-          keys:
-            - kubectl-bin
-      - run:
-          name: Install Kubectl
-          command: |
-            set -x
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            sudo chmod +x ./kubectl
-      - save_cache:
-          key: kubectl-bin
-          paths:
-            - ./kubectl
-      - run:
-          name: Deploy to K8S
-          command: |
-            echo ${KUBECONFIG}
-            echo -n ${KUBECONFIG} | base64 -d > kubeconfig.yml
-            ./kubectl --kubeconfig=kubeconfig.yml --namespace=rc set image deployment/experimentd experimentd=hsarena/experimentd:0.1.${CIRCLE_BUILD_NUM}
+  dockerized:
+      <<: *defaults
+      steps:
+        - setup_remote_docker
+        - run:
+            name: Build Docker Image
+            command: |
+              export TAG=0.1.${CIRCLE_BUILD_NUM}
+              export IMAGE_NAME=hsarena/experimentd:$TAG
+              docker build -t $IMAGE_NAME  .
+              docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+              docker push $IMAGE_NAME
+      requires:
+        - build
+  deploy:
+      <<: *defaults
+      steps:
+        - restore_cache:
+            keys:
+              - kubectl-bin
+        - run:
+            name: Install Kubectl
+            command: |
+              set -x
+              curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              sudo chmod +x ./kubectl
+        - save_cache:
+            key: kubectl-bin
+            paths:
+              - ./kubectl
+        - run:
+            name: Deploy to K8S
+            command: |
+              echo ${KUBECONFIG}
+              echo -n ${KUBECONFIG} | base64 -d > kubeconfig.yml
+              ./kubectl --kubeconfig=kubeconfig.yml --namespace=rc set image deployment/experimentd experimentd=hsarena/experimentd:0.1.${CIRCLE_BUILD_NUM}
+      requires:
+        - dockerized
