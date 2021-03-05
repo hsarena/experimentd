@@ -1,5 +1,6 @@
 .git
 .gitignore
+.circleci
 .dub
 docs.json
 __dummy.html
