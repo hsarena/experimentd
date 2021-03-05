@@ -8,9 +8,6 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-
-      
-
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "dub.selections.json" }}
@@ -22,7 +19,8 @@ jobs:
       - save_cache:
           key: v1-dependencies-{{ checksum "dub.selections.json" }}
           paths:
-            - .dub
+            - .dub/build
+            - .dub/packages
       - persist_to_workspace:
           root: .
           paths:
@@ -45,22 +43,30 @@ jobs:
             docker build -t $IMAGE_NAME  .
             docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
             docker push $IMAGE_NAME
-      - restore_cache:
-          keys:
-            - kubectl-bin
+      #- restore_cache:
+      #    keys:
+      #      - kube-bin
       - run:
           name: Install Kubectl
           command: |
             set -x
             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
             sudo chmod +x ./kubectl
+      - run:
+          name: Install and  helm
+          command: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      
       - save_cache:
-          key: kubectl-bin
+          key: kube-bin
           paths:
             - ./kubectl
+      # - run:
+      #    name: Deploy to K8S
+      #    command: |
+      #      echo -n ${KUBECONFIG} | base64 -d > kubeconfig.yml
+      #      ./kubectl --kubeconfig=kubeconfig.yml --namespace=rc set image deployment/experimentd experimentd=hsarena/experimentd:0.1.${CIRCLE_BUILD_NUM}
+
       - run:
-          name: Deploy to K8S
-          command: |
-            echo ${KUBECONFIG}
-            echo -n ${KUBECONFIG} | base64 -d > kubeconfig.yml
-            ./kubectl --kubeconfig=kubeconfig.yml --namespace=rc set image deployment/experimentd experimentd=hsarena/experimentd:0.1.${CIRCLE_BUILD_NUM}
+          name: Deploy to K8S  with helm
+          command: helm install --timeout 180s experimentd --set image.tag=0.1.${CIRCLE_BUILD_NUM} ./charts

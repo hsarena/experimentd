@@ -13,3 +13,4 @@ experimentd-test-*
 *.o
 *.obj
 *.lst
+**/output/
