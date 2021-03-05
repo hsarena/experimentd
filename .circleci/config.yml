@@ -13,7 +13,6 @@ jobs:
 
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
             - v1-dependencies-{{ checksum "dub.selections.json" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
@@ -23,8 +22,11 @@ jobs:
       - save_cache:
           key: v1-dependencies-{{ checksum "dub.selections.json" }}
           paths:
-            - ./.dub
-
+            - .dub
+      - persist_to_workspace:
+          root: .
+          paths:
+            - experimentd
       # run tests 
       # - run:
       #     name: Run Unit tests
@@ -33,6 +35,8 @@ jobs:
       #     name: Code Coverage
       #     command: bash <(curl -s https://codecov.io/bash)
       - setup_remote_docker
+      - attach_workspace:
+          at: .
       - run:
           name: Build Docker Image
           command: |
