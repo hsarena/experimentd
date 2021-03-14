@@ -14,3 +14,9 @@ experimentd-test-*
 *.obj
 *.lst
 **/output/
+**/.tfvars
+**/output
+**/*.backup
+**/secrets.yaml
+**/*secrets*
+**/.terraform*
