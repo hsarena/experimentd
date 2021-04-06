@@ -56,7 +56,7 @@ void main()
 void hello(HTTPServerRequest req, HTTPServerResponse res)
 {
 	logInfo("hello called");
-	res.writeBody("Goodbye World");
+	res.writeBody("Hello World");
 }
 
 void healthz(HTTPServerRequest req, HTTPServerResponse res)
